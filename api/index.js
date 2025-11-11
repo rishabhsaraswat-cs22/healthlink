@@ -24,8 +24,8 @@ app.use(cors({
 try {
   connection();
 } catch (error) {
-  console.log('Database connection error:');
-}connection();
+  console.log('Database connection error:', error);
+}
 
 app.use(express.json());
 app.use(cookieParser());
@@ -43,8 +43,16 @@ app.post('/api/login', async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' }); 
     }
+    // Debugging: log masked info to help diagnose password mismatches
+    try {
+      console.log('[login] email:', email);
+      
+    } catch (logErr) {
+      console.error('Login debug log error:', logErr);
+    }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log('[login] bcrypt compare result for', email, ':', isPasswordValid);
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -137,6 +145,7 @@ app.post('/api/register',async (req,res)=>{
   await User.create({
     email, password: hashedPassword, role:"patient"
   })
+  console.log('[register patient] created user/email:', email, 'hash-trunc:', hashedPassword ? hashedPassword.substring(0,10) + '...' : 'no-hash');
   return res.status(201).json({ message: 'Patient registered successfully' });
 })
 
@@ -158,6 +167,7 @@ app.post('/api/admin/register',async (req,res)=>{
     await Admin.create({
       name, email, password: hashedPassword
     })
+    console.log('[register admin] created admin/email:', email, 'hash-trunc:', hashedPassword ? hashedPassword.substring(0,10) + '...' : 'no-hash');
     return res.status(201).json({ message: 'Admin registered successfully' });
   }
   catch(err){
