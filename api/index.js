@@ -25,7 +25,7 @@ try {
   connection();
 } catch (error) {
   console.log('Database connection error:', error);
-}
+}connection();
 
 app.use(express.json());
 app.use(cookieParser());
@@ -45,14 +45,13 @@ app.post('/api/login', async (req, res) => {
     }
     // Debugging: log masked info to help diagnose password mismatches
     try {
-      console.log('[login] email:', email);
+      console.log("logged in");
       
     } catch (logErr) {
       console.error('Login debug log error:', logErr);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log('[login] bcrypt compare result for', email, ':', isPasswordValid);
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
